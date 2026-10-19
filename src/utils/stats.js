@@ -1,26 +1,25 @@
 // 수주/진행 통계 계산 헬퍼
 export const calculateStatsFromList = (dataList) => {
   const ongoing = dataList.filter(
-    (p) => p.status === '진행중' || p.status === 'In Progress'
+    (p) => ['설계', '진행중', 'In Progress'].includes(p.status)
   ).length;
 
-  const won = dataList.filter(
-    (p) => p.status === '수주' || p.status === 'Won'
-  ).length;
+  const wonProjects = dataList.filter(
+    (p) => ['계약', '제작', '납품', '완료', '수금', '수주', 'Won'].includes(p.status)
+  );
+  const won = wonProjects.length;
 
   let totalWonAmount = 0;
   let totalWonProfit = 0;
 
-  dataList.forEach((p) => {
-    if (p.status === '수주' || p.status === 'Won') {
-      const amount =
-        p.contractAmount ||
-        p.revisions?.[p.revisions.length - 1]?.amount ||
-        0;
+  wonProjects.forEach((p) => {
+    const amount =
+      p.contractAmount ||
+      p.revisions?.[p.revisions.length - 1]?.amount ||
+      0;
 
-      totalWonAmount += amount;
-      totalWonProfit += amount - (p.finalCost || 0);
-    }
+    totalWonAmount += amount;
+    totalWonProfit += amount - (p.finalCost || 0);
   });
 
   const avgMargin =
@@ -30,4 +29,3 @@ export const calculateStatsFromList = (dataList) => {
 
   return { ongoing, won, totalWonAmount, avgMargin };
 };
-
